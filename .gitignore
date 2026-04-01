@@ -1,0 +1,28 @@
+# Dependencies
+node_modules/
+
+# Production build (regenerate with `npm run build` in denamico-sa-toolkit-web)
+dist/
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor / IDE (uncomment if you prefer not to share local settings)
+# .vscode/
+# .idea/
+
+# Logs and caches
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+*.log
+.cache/
+
+# Local-only
+*.local
