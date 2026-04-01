@@ -1,0 +1,19 @@
+{
+  "name": "denamico-sa-toolkit-web",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "node scripts/run-vite.mjs dev",
+    "build": "node scripts/run-vite.mjs build",
+    "preview": "node scripts/run-vite.mjs preview"
+  },
+  "dependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.4",
+    "vite": "^6.0.3"
+  }
+}
