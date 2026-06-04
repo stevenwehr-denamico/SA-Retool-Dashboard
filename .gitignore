@@ -16,6 +16,7 @@ Thumbs.db
 # Editor / IDE (uncomment if you prefer not to share local settings)
 # .vscode/
 # .idea/
+.cursor/
 
 # Logs and caches
 npm-debug.log*

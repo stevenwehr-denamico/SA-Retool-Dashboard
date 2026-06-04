@@ -1,0 +1,13 @@
+{
+  "name": "sa-toolkit-qa",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Isolated end-to-end QA regression harness for the SA Retool Dashboard (Denamico Dev Sandbox only).",
+  "scripts": {
+    "test": "playwright test"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.49.0"
+  }
+}

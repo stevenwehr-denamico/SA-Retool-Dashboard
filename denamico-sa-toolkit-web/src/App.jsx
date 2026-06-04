@@ -1198,7 +1198,8 @@ function PortalDropdown({ portal, setPortal }) {
 /* ─── Main App ─── */
 export default function App() {
   const [page, setPage] = useState("home");
-  const [portal, setPortal] = useState(PORTALS[0]);
+  // Default to the dev sandbox so development work never points at a production portal.
+  const [portal, setPortal] = useState(PORTALS.find((p) => p.id === "demo") || PORTALS[0]);
   const [collapsed, setCollapsed] = useState(false);
 
   const currentNav = NAV.find((n) => n.id === page);

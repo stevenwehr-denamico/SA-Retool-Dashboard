@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SA Toolkit — Internal Access | Denamico</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+
+  <style>
+    :root {
+      --bg:             #0F172A;
+      --bg-card:        #152746;
+      --bg-card-inner:  #1e3459;
+      --border:         #2a4470;
+      --accent:         #2b69a5;
+      --accent-light:   #64bee6;
+      --accent-pale:    #e8f2fb;
+      --text-primary:   #ffffff;
+      --text-secondary: rgba(255, 255, 255, 0.55);
+      --text-muted:     rgba(255, 255, 255, 0.35);
+      --orange:         #f57f21;
+      --success:        #acbe37;
+      --danger:         #953820;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      min-height: 100%;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text-primary);
+      font-family: 'DM Sans', system-ui, sans-serif;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* ── Visual depth effects ─────────────────────────────────── */
+    .noise {
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+      pointer-events: none;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E");
+      opacity: 0.04;
+    }
+
+    .ambient-line {
+      position: fixed;
+      top: 0;
+      left: 50%;
+      width: 1px;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 1;
+      background: linear-gradient(to bottom, transparent 0%, var(--accent) 50%, transparent 100%);
+      opacity: 0.12;
+    }
+
+    /* ── Header ───────────────────────────────────────────────── */
+    header {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 24px 32px;
+      gap: 16px;
+    }
+
+    .wordmark {
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 700;
+      font-size: 20px;
+      letter-spacing: 0.01em;
+      color: var(--text-primary);
+    }
+
+    .badge-internal {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: var(--accent-light);
+      border: 1px solid var(--accent);
+      background: rgba(43, 105, 165, 0.08);
+      border-radius: 6px;
+      padding: 6px 10px;
+      white-space: nowrap;
+    }
+
+    /* ── Main ─────────────────────────────────────────────────── */
+    main {
+      position: relative;
+      z-index: 2;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 48px 24px;
+      gap: 36px;
+    }
+
+    .hero {
+      width: 100%;
+      max-width: 600px;
+      text-align: left;
+    }
+
+    .eyebrow {
+      font-family: 'DM Mono', monospace;
+      color: var(--accent-light);
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      font-size: 12px;
+      margin-bottom: 16px;
+    }
+
+    .hero h1 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(48px, 8vw, 80px);
+      line-height: 0.95;
+      font-weight: 400;
+      color: var(--text-primary);
+      letter-spacing: 0.01em;
+    }
+
+    .tagline {
+      font-family: 'DM Sans', sans-serif;
+      color: var(--text-secondary);
+      max-width: 520px;
+      font-size: 15px;
+      line-height: 1.6;
+      margin-top: 16px;
+    }
+
+    .hero hr {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin-top: 28px;
+    }
+
+    /* ── Auth Card ────────────────────────────────────────────── */
+    .auth-card {
+      width: 100%;
+      max-width: 480px;
+      margin: 0 auto;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 32px;
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .card-header-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .card-header-left svg {
+      display: block;
+      color: var(--accent-light);
+    }
+
+    .card-title {
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 600;
+      font-size: 16px;
+      color: var(--text-primary);
+    }
+
+    .badge-orange {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--orange);
+      background: rgba(245, 127, 33, 0.12);
+      border-radius: 6px;
+      padding: 5px 9px;
+      white-space: nowrap;
+    }
+
+    .card-subtext {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      color: var(--text-secondary);
+      line-height: 1.5;
+      margin-top: 14px;
+    }
+
+    #email-input {
+      width: 100%;
+      background: var(--bg-card-inner);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px 14px;
+      font-family: 'DM Mono', monospace;
+      font-size: 14px;
+      color: var(--text-primary);
+      margin-top: 18px;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    #email-input::placeholder {
+      color: var(--text-muted);
+    }
+
+    #email-input:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(43, 105, 165, 0.25);
+    }
+
+    #send-btn {
+      width: 100%;
+      background: var(--orange);
+      color: #ffffff;
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 600;
+      font-size: 15px;
+      border: none;
+      border-radius: 8px;
+      padding: 13px;
+      cursor: pointer;
+      margin-top: 14px;
+      transition: background 0.15s ease, opacity 0.15s ease;
+    }
+
+    #send-btn:hover {
+      background: #c4641a;
+    }
+
+    #send-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    /* ── TEMP DEV BYPASS (remove before production) ───────────── */
+    #admin-bypass-btn {
+      width: 100%;
+      background: transparent;
+      color: var(--text-secondary);
+      font-family: 'DM Mono', monospace;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      border: 1px dashed var(--border);
+      border-radius: 8px;
+      padding: 11px;
+      cursor: pointer;
+      margin-top: 10px;
+      transition: border-color 0.15s ease, color 0.15s ease;
+    }
+
+    #admin-bypass-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent-light);
+    }
+    /* ── END TEMP DEV BYPASS ──────────────────────────────────── */
+
+    /* ── Message states ───────────────────────────────────────── */
+    #msg-success,
+    #msg-error {
+      display: none;
+      align-items: center;
+      gap: 10px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      margin-top: 14px;
+    }
+
+    #msg-success {
+      color: var(--success);
+    }
+
+    #msg-error {
+      color: var(--danger);
+    }
+
+    #msg-success svg,
+    #msg-error svg {
+      flex-shrink: 0;
+      display: block;
+    }
+
+    /* ── Stats row ────────────────────────────────────────────── */
+    .stats-divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin-top: 28px;
+    }
+
+    .stats-row {
+      display: flex;
+      margin-top: 20px;
+    }
+
+    .stat-cell {
+      flex: 1;
+      text-align: center;
+      padding: 0 8px;
+    }
+
+    .stat-cell + .stat-cell {
+      border-left: 1px solid var(--border);
+    }
+
+    .stat-value {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 28px;
+      color: var(--accent-light);
+      line-height: 1;
+    }
+
+    .stat-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      margin-top: 6px;
+    }
+
+    /* ── Footer ───────────────────────────────────────────────── */
+    footer {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      padding: 28px 24px 36px;
+      text-align: center;
+    }
+
+    .footer-copy {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .footer-links {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 20px;
+    }
+
+    .footer-links a {
+      font-family: 'DM Mono', monospace;
+      font-size: 12px;
+      color: var(--text-secondary);
+      text-decoration: none;
+    }
+
+    .footer-links a:hover {
+      text-decoration: underline;
+    }
+
+    /* ── Responsiveness ───────────────────────────────────────── */
+    @media (max-width: 480px) {
+      header {
+        padding: 18px 18px;
+      }
+
+      .auth-card {
+        padding: 20px;
+      }
+
+      .hero h1 {
+        font-size: 52px;
+      }
+
+      .stat-value {
+        font-size: 22px;
+      }
+
+      .stat-cell {
+        padding: 0 4px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="noise"></div>
+  <div class="ambient-line"></div>
+
+  <header>
+    <span class="wordmark">Denamico</span>
+    <span class="badge-internal">Internal Access Only</span>
+  </header>
+
+  <main>
+    <section class="hero">
+      <p class="eyebrow">Solutions Architect Toolkit</p>
+      <h1>SA Retool Dashboard</h1>
+      <p class="tagline">A React-based UI for data mapping, imports, schema exploration, integration design, and related SA workflows.</p>
+      <hr />
+    </section>
+
+    <section class="auth-card">
+      <div class="card-header">
+        <div class="card-header-left">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+          </svg>
+          <span class="card-title">Request Access</span>
+        </div>
+        <span class="badge-orange">Internal only</span>
+      </div>
+
+      <p class="card-subtext">Enter your @denamico.com email to receive a one-time login link.</p>
+
+      <input
+        id="email-input"
+        type="email"
+        autocomplete="email"
+        placeholder="your@denamico.com"
+      />
+
+      <button id="send-btn" type="button">Send Access Link</button>
+
+      <!-- TEMP DEV BYPASS: remove this button before production -->
+      <button id="admin-bypass-btn" type="button">Admin Access</button>
+      <!-- END TEMP DEV BYPASS -->
+
+      <div id="msg-success">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M20 6 9 17l-5-5"></path>
+        </svg>
+        <span>Check your email — link sent!</span>
+      </div>
+
+      <div id="msg-error">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M18 6 6 18"></path>
+          <path d="m6 6 12 12"></path>
+        </svg>
+        <span id="error-text"></span>
+      </div>
+
+      <hr class="stats-divider" />
+
+      <div class="stats-row">
+        <div class="stat-cell">
+          <div class="stat-value">11</div>
+          <div class="stat-label">Toolkit Modules</div>
+        </div>
+        <div class="stat-cell">
+          <div class="stat-value">25+</div>
+          <div class="stat-label">Integrations</div>
+        </div>
+        <div class="stat-cell">
+          <div class="stat-value">&lt;30s</div>
+          <div class="stat-label">Generation Time</div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p class="footer-copy">© 2026 Denamico. Internal use only.</p>
+    <nav class="footer-links">
+      <a href="http://localhost:5173" target="_blank" rel="noopener">Open SA Toolkit</a>
+      <a href="https://github.com/stevenwehr-denamico/SA-Retool-Dashboard" target="_blank" rel="noopener">GitHub</a>
+      <a href="mailto:sa-team@denamico.com">Support</a>
+    </nav>
+  </footer>
+
+  <script>
+    // ── Config ──────────────────────────────────────────────────────
+    const SUPABASE_URL      = 'https://YOUR_REF.supabase.co';
+    const SUPABASE_ANON_KEY = 'YOUR_ANON_KEY';
+    const REDIRECT_URL      = 'http://localhost:5173';
+    const ALLOWED_EMAILS    = ['@denamico.com']; // '@domain.com' matches any address at that domain
+
+    // ── Init ─────────────────────────────────────────────────────────
+    // CRITICAL: variable name must be `supabaseClient` — NEVER `supabase`
+    // The Supabase CDN exposes a global called `supabase`. Using that name
+    // for our initialized client would shadow/conflict with the CDN global.
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    // ── DOM refs ──────────────────────────────────────────────────────
+    const emailInput = document.getElementById('email-input');
+    const sendBtn    = document.getElementById('send-btn');
+    const msgSuccess = document.getElementById('msg-success');
+    const msgError   = document.getElementById('msg-error');
+    const errorText  = document.getElementById('error-text');
+
+    // ── Send magic link ───────────────────────────────────────────────
+    sendBtn.addEventListener('click', async () => {
+      const email = emailInput.value.trim().toLowerCase();
+
+      msgSuccess.style.display = 'none';
+      msgError.style.display   = 'none';
+
+      if (!email || !email.includes('@')) {
+        showError('Please enter a valid email address.');
+        return;
+      }
+
+      // Allowlist gate — checked client-side before hitting Supabase
+      const allowed = ALLOWED_EMAILS.some(entry => {
+        if (entry.startsWith('@')) return email.endsWith(entry); // domain wildcard
+        return email === entry;                                   // exact match
+      });
+
+      if (!allowed) {
+        showError('This email is not authorized for internal access.');
+        return;
+      }
+
+      sendBtn.disabled    = true;
+      sendBtn.textContent = 'Sending…';
+
+      try {
+        const { error } = await supabaseClient.auth.signInWithOtp({
+          email,
+          options: { emailRedirectTo: REDIRECT_URL }
+        });
+        if (error) throw error;
+        msgSuccess.style.display = 'flex';
+        emailInput.value = '';
+      } catch (err) {
+        showError(err.message || 'Something went wrong. Please try again.');
+      } finally {
+        sendBtn.disabled    = false;
+        sendBtn.textContent = 'Send Access Link';
+      }
+    });
+
+    emailInput.addEventListener('keydown', e => {
+      if (e.key === 'Enter') sendBtn.click();
+    });
+
+    function showError(msg) {
+      errorText.textContent  = msg;
+      msgError.style.display = 'flex';
+    }
+
+    // ── TEMP DEV BYPASS (remove before production) ───────────────────
+    // Skips magic-link auth and navigates straight to the Retool app.
+    const adminBypassBtn = document.getElementById('admin-bypass-btn');
+    adminBypassBtn.addEventListener('click', () => {
+      window.location.href = REDIRECT_URL;
+    });
+    // ── END TEMP DEV BYPASS ──────────────────────────────────────────
+  </script>
+</body>
+</html>
