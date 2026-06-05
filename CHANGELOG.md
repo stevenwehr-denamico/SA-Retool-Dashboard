@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-- _(nothing yet — add items here before the next release)_
+- **Guide & training:** in-app help center with a "Help & training" sidebar section and step-by-step, end-to-end how-to articles (overview, prerequisites, numbered steps, pro-tip callouts, and FAQs) for every tool, plus end-to-end workflow walkthroughs and a Dashboard entry point. Added to both the standalone web app (`denamico-sa-toolkit-web/src/Guide.jsx`) and the Retool single-file component (`denamico-sa-toolkit.jsx`).
 
 ## [1.0.0] — 2026-04-01
 
