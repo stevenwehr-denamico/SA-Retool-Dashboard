@@ -1,7 +1,8 @@
 import { useState, useCallback, useMemo, useRef, useEffect } from "react";
+import GuideTraining from "./Guide.jsx";
 
 /* ─── Denamico Brand Palette ─── */
-const C = {
+export const C = {
   slate: "#152746", slateLight: "#1e3459", slateMid: "#2a4470",
   blue: "#2b69a5", blueLight: "#64bee6", bluePale: "#e8f2fb",
   orange: "#f57f21", orangeLight: "#fef4eb", orangeDark: "#c4641a",
@@ -14,14 +15,14 @@ const C = {
 };
 
 /* ─── Icon Components (inline SVG) ─── */
-const Icon = ({ d, size = 18, color = "currentColor", strokeWidth = 1.8 }) => (
+export const Icon = ({ d, size = 18, color = "currentColor", strokeWidth = 1.8 }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none"
     stroke={color} strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round">
     <path d={d} />
   </svg>
 );
 
-const icons = {
+export const icons = {
   home: "M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z M9 21V12h6v9",
   mapping: "M21 3H3v7h18V3z M21 14H3v7h18v-7z M10 7h4 M10 18h4",
   upload: "M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4 M17 8l-5-5-5 5 M12 3v12",
@@ -48,6 +49,11 @@ const icons = {
   zap: "M13 2L3 14h9l-1 8 10-12h-9l1-8z",
   layers: "M12 2L2 7l10 5 10-5-10-5z M2 17l10 5 10-5 M2 12l10 5 10-5",
   database: "M12 2C6.48 2 2 4.02 2 6.5v11C2 19.98 6.48 22 12 22s10-2.02 10-4.5v-11C22 4.02 17.52 2 12 2z M2 6.5C2 8.98 6.48 11 12 11s10-2.02 10-4.5 M2 11.5c0 2.48 4.48 4.5 10 4.5s10-2.02 10-4.5",
+  book: "M4 19.5A2.5 2.5 0 016.5 17H20 M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z",
+  help: "M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3 M12 17h.01 M12 22a10 10 0 100-20 10 10 0 000 20z",
+  bulb: "M9 18h6 M10 22h4 M12 2a7 7 0 00-4 12.7c.6.5 1 1.3 1 2.1h6c0-.8.4-1.6 1-2.1A7 7 0 0012 2z",
+  alert: "M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z M12 9v4 M12 17h.01",
+  route: "M6 19a3 3 0 100-6 3 3 0 000 6z M18 11a3 3 0 100-6 3 3 0 000 6z M6 13V8a3 3 0 013-3h6 M15 5l-2-2 2-2 M18 11v5a3 3 0 01-3 3H9 M9 19l2 2-2 2",
 };
 
 /* ─── Navigation Config ─── */
@@ -66,6 +72,8 @@ const NAV = [
   { id: "integration-designer", label: "Integration designer", icon: icons.integration },
   { id: "workflow-templates", label: "Workflow templates", icon: icons.code },
   { id: "webhook-tester", label: "Webhook tester", icon: icons.webhook },
+  { id: "divider-4", divider: true, label: "Help & training" },
+  { id: "guide", label: "Guide & training", icon: icons.book },
 ];
 
 const PORTALS = [
@@ -132,7 +140,7 @@ const SAMPLE_SOURCE_FIELDS = [
 ];
 
 /* ─── Styles ─── */
-const S = {
+export const S = {
   app: { display: "flex", height: "100vh", fontFamily: "'DM Sans', 'Segoe UI', system-ui, sans-serif", background: C.gray50, color: C.gray800, fontSize: 14, overflow: "hidden" },
   sidebar: (collapsed) => ({
     width: collapsed ? 60 : 248, minWidth: collapsed ? 60 : 248, background: C.slate, display: "flex", flexDirection: "column",
@@ -240,6 +248,23 @@ function DashboardHome({ portal, setPage }) {
             <div style={{ fontSize: 16, fontWeight: 600, color: s.color }}>{s.value}</div>
           </div>
         ))}
+      </div>
+      <div
+        onClick={() => setPage("guide")}
+        style={{
+          display: "flex", alignItems: "center", gap: 14, padding: "14px 18px", marginBottom: 28,
+          borderRadius: 10, border: `1px solid ${C.bluePale}`, background: C.bluePale, cursor: "pointer", transition: "all 0.15s",
+        }}
+        onMouseEnter={(e) => { e.currentTarget.style.transform = "translateY(-1px)"; }}
+        onMouseLeave={(e) => { e.currentTarget.style.transform = "none"; }}>
+        <div style={{ width: 36, height: 36, borderRadius: 8, background: C.white, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+          <Icon d={icons.book} size={18} color={C.blue} />
+        </div>
+        <div style={{ flex: 1 }}>
+          <div style={{ fontSize: 14, fontWeight: 600, color: C.slate }}>New here? Open the Guide &amp; training</div>
+          <div style={{ fontSize: 12, color: C.blue }}>Step-by-step, end-to-end instructions for every tool.</div>
+        </div>
+        <Icon d={icons.arrow} size={16} color={C.blue} />
       </div>
       <div style={{ fontSize: 12, fontWeight: 600, color: C.gray400, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 12 }}>Tools</div>
       <div style={S.grid3}>
@@ -1218,6 +1243,7 @@ export default function App() {
       case "integration-designer": return <IntegrationDesigner portal={portal} />;
       case "workflow-templates": return <WorkflowTemplates />;
       case "webhook-tester": return <WebhookTester />;
+      case "guide": return <GuideTraining setPage={setPage} />;
       default: return <DashboardHome portal={portal} setPage={setPage} />;
     }
   };
